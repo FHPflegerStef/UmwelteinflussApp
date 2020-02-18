@@ -14,6 +14,7 @@ const TEMP_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Lufttemperatur.csv';
 const HUMI_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Luftfeuchtigkeit.csv';
 
 var csv: string;
+var csvToJson = require('convert-csv-to-json');
 
 interface StartPageProperties {
   navigation: NavigationStackProp<{}>;
@@ -65,7 +66,9 @@ export default class StartPage extends React.Component<StartPageProperties> {
   }
 
   render() {
-    console.log(this.state.tempData);
+    var no2DataJson = csvToJson.getJsonFromCsv(this.state.no2Data);
+    console.log(no2DataJson);
+
     return (
       <View style={styles.container}>
         <Text>Open up App.tsx to start working on your app!</Text>
