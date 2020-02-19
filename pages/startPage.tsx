@@ -1,8 +1,17 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { NavigationStackProp } from 'react-navigation-stack';
-import { FlatList } from 'react-native-gesture-handler';
+import {
+  NavigationStackProp,
+  createStackNavigator,
+} from 'react-navigation-stack';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { CsvParser } from 'csv-parser';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  Provider as PaperProvider,
+  Card,
+  IconButton,
+} from 'react-native-paper';
 
 const NO2_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Stickstoffdioxid.csv';
 const CO_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Kohlenmonoxid.csv';
@@ -13,9 +22,6 @@ const PM10_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/FeinstaubPM10.csv';
 const TEMP_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Lufttemperatur.csv';
 const HUMI_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Luftfeuchtigkeit.csv';
 
-var csv: string;
-var csvToJson = require('convert-csv-to-json');
-
 interface StartPageProperties {
   navigation: NavigationStackProp<{}>;
 }
@@ -23,14 +29,27 @@ interface StartPageProperties {
 export default class StartPage extends React.Component<StartPageProperties> {
   state = {
     inputText: '',
-    no2Data: [],
-    o3Data: [],
-    globStrData: [],
-    pm10Data: [],
-    coData: [],
-    tempData: [],
-    humiData: [],
+    no2Data: '',
+    o3Data: '',
+    globStrData: '',
+    pm10Data: '',
+    coData: '',
+    tempData: '',
+    humiData: '',
     isLoading: false,
+  };
+
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: 'NÖ-Messstationen',
+      headerRight: () => (
+        <IconButton
+          icon='information-outline'
+          onPress={() => navigation.navigate('ImpressumPage')}
+          color='#000'
+        />
+      ),
+    };
   };
 
   componentDidMount() {
@@ -65,17 +84,61 @@ export default class StartPage extends React.Component<StartPageProperties> {
       .catch(error => console.log(error));
   }
 
+  renderApothekenItem = ({ item }) => {
+    return (
+      <View style={{ padding: 5 }}>
+        <Card>
+          <Card.Title title={item.Station} />
+        </Card>
+      </View>
+    );
+  };
+
   render() {
-    var no2DataJson = csvToJson.getJsonFromCsv(this.state.no2Data);
-    console.log(no2DataJson);
+    const tempArray = csvJSON(this.state.tempData);
 
     return (
-      <View style={styles.container}>
-        <Text>Open up App.tsx to start working on your app!</Text>
+      <View>
+        <FlatList
+          ListEmptyComponent={() => <Text>Keine Daten gefunden.</Text>}
+          data={tempArray}
+          renderItem={this.renderApothekenItem}
+        />
       </View>
     );
   }
 }
+
+function csvJSON(csv) {
+  var lines = csv.split('\n');
+
+  var result = [];
+
+  var headers = lines[0].split(';');
+
+  for (var i = 1; i < lines.length; i++) {
+    var obj = {};
+    var currentline = lines[i].split(';');
+
+    for (var j = 0; j < headers.length; j++) {
+      obj[headers[j]] = currentline[j];
+    }
+
+    result.push(obj);
+  }
+
+  return result; //JavaScript object
+  //return JSON.stringify(result); //JSON
+}
+
+function objectConverter(jsonAsArray) {
+  const jsonAsObject = jsonAsArray[0];
+  if (typeof jsonAsObject != 'undefined') {
+    console.log(jsonAsObject.Datum);
+  }
+}
+
+function renderCards() {}
 
 const styles = StyleSheet.create({
   container: {
