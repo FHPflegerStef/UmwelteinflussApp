@@ -11,16 +11,11 @@ import {
   Provider as PaperProvider,
   Card,
   IconButton,
+  Avatar,
+  ActivityIndicator,
 } from 'react-native-paper';
 
-const NO2_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Stickstoffdioxid.csv';
-const CO_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Kohlenmonoxid.csv';
-const O3_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Ozon.csv';
-const GLOBSTR_URL =
-  'http://open-data.noe.gv.at/ogd-data/BD4/Globalstrahlung.csv';
-const PM10_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/FeinstaubPM10.csv';
 const TEMP_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Lufttemperatur.csv';
-const HUMI_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Luftfeuchtigkeit.csv';
 
 interface StartPageProperties {
   navigation: NavigationStackProp<{}>;
@@ -29,14 +24,7 @@ interface StartPageProperties {
 export default class StartPage extends React.Component<StartPageProperties> {
   state = {
     inputText: '',
-    no2Data: '',
-    o3Data: '',
-    globStrData: '',
-    pm10Data: '',
-    coData: '',
     tempData: '',
-    humiData: '',
-    isLoading: false,
   };
 
   static navigationOptions = ({ navigation }) => {
@@ -53,45 +41,35 @@ export default class StartPage extends React.Component<StartPageProperties> {
   };
 
   componentDidMount() {
-    //get csv's from the website
-    fetch(NO2_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ no2Data: text }))
-      .catch(error => console.log(error));
-    fetch(CO_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ coData: text }))
-      .catch(error => console.log(error));
-    fetch(O3_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ o3Data: text }))
-      .catch(error => console.log(error));
-    fetch(GLOBSTR_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ globStrData: text }))
-      .catch(error => console.log(error));
-    fetch(PM10_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ pm10Data: text }))
-      .catch(error => console.log(error));
+    //get csv from the website
     fetch(TEMP_URL)
       .then(response => response.text())
       .then(text => this.setState({ tempData: text }))
       .catch(error => console.log(error));
-    fetch(HUMI_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ humiData: text }))
-      .catch(error => console.log(error));
   }
 
-  renderApothekenItem = ({ item }) => {
-    return (
-      <View style={{ padding: 5 }}>
-        <Card>
-          <Card.Title title={item.Station} />
-        </Card>
-      </View>
-    );
+  renderCityItem = ({ item }) => {
+    const dateNow = new Date();
+    const lastHour = dateNow.getHours() - 1;
+    const valueOfDate = 'Wert' + lastHour.toString();
+    const tempAtLastHour = Number(item[valueOfDate]);
+    const tempString = tempAtLastHour.toFixed(2).toString() + ' °C';
+
+    if (item.Station != '') {
+      return (
+        <View style={{ padding: 5 }}>
+          <CityItem
+            station={String(item.Station).slice(1, -1)}
+            temperature={tempString}
+            onCityClicked={() =>
+              this.props.navigation.navigate('DetailPage', {
+                value: item.Station,
+              })
+            }
+          />
+        </View>
+      );
+    }
   };
 
   render() {
@@ -100,11 +78,39 @@ export default class StartPage extends React.Component<StartPageProperties> {
     return (
       <View>
         <FlatList
-          ListEmptyComponent={() => <Text>Keine Daten gefunden.</Text>}
+          ListEmptyComponent={() => (
+            <ActivityIndicator
+              animating={true}
+              color={'blue'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            />
+          )}
           data={tempArray}
-          renderItem={this.renderApothekenItem}
+          renderItem={this.renderCityItem}
         />
       </View>
+    );
+  }
+}
+interface ItemProps {
+  station: string;
+  temperature: string;
+  onCityClicked(): void;
+}
+
+class CityItem extends React.Component<ItemProps> {
+  render() {
+    return (
+      <Card onPress={this.props.onCityClicked}>
+        <Card.Title
+          title={this.props.station}
+          subtitle={this.props.temperature}
+          left={props => <Avatar.Icon {...props} icon='city-variant-outline' />}
+        />
+      </Card>
     );
   }
 }
@@ -130,15 +136,6 @@ function csvJSON(csv) {
   return result; //JavaScript object
   //return JSON.stringify(result); //JSON
 }
-
-function objectConverter(jsonAsArray) {
-  const jsonAsObject = jsonAsArray[0];
-  if (typeof jsonAsObject != 'undefined') {
-    console.log(jsonAsObject.Datum);
-  }
-}
-
-function renderCards() {}
 
 const styles = StyleSheet.create({
   container: {

@@ -4,6 +4,7 @@ import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import startPage from './pages/startPage';
 import impressumPage from './pages/impressumPage';
+import detailPage from './pages/detailPage';
 
 const AppNavigator = createStackNavigator({
   Home: {
@@ -11,6 +12,9 @@ const AppNavigator = createStackNavigator({
   },
   ImpressumPage: {
     screen: impressumPage,
+  },
+  DetailPage: {
+    screen: detailPage,
   },
 });
 
