@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, Linking } from 'react-native';
+import { StyleSheet, View, Text, Linking, ToastAndroid } from 'react-native';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import {
   Card,
@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native-paper';
 
+//Url-variables
 const NO2_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Stickstoffdioxid.csv';
 const CO_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Kohlenmonoxid.csv';
 const O3_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Ozon.csv';
@@ -18,24 +19,21 @@ const PM10_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/FeinstaubPM10.csv';
 const TEMP_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Lufttemperatur.csv';
 const HUMI_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Luftfeuchtigkeit.csv';
 
-var arrayAlreadyRendered = [];
-
 interface DetailPageProps {
   navigation: any;
 }
 
 export default class DetailPage extends React.Component<DetailPageProps> {
   state = {
-    renderLimiter: 0,
-    stationName: '',
-    inputText: '',
-    no2Data: '',
-    o3Data: '',
-    globStrData: '',
-    pm10Data: '',
-    coData: '',
-    tempData: '',
-    humiData: '',
+    csvs: {
+      no2Data: null,
+      o3Data: null,
+      globStrData: null,
+      pm10Data: null,
+      coData: null,
+      tempData: null,
+      humiData: null,
+    },
   };
 
   static navigationOptions = ({ navigation }) => {
@@ -44,116 +42,73 @@ export default class DetailPage extends React.Component<DetailPageProps> {
     };
   };
 
-  fetchCsvs() {
-    fetch(NO2_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ no2Data: text }))
-      .catch(error => console.log(error));
-    fetch(CO_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ coData: text }))
-      .catch(error => console.log(error));
-    fetch(O3_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ o3Data: text }))
-      .catch(error => console.log(error));
-    fetch(GLOBSTR_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ globStrData: text }))
-      .catch(error => console.log(error));
-    fetch(PM10_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ pm10Data: text }))
-      .catch(error => console.log(error));
-    fetch(TEMP_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ tempData: text }))
-      .catch(error => console.log(error));
-    fetch(HUMI_URL)
-      .then(response => response.text())
-      .then(text => this.setState({ humiData: text }))
-      .catch(error => console.log(error));
-  }
-
   componentDidMount() {
+    const stationName = this.props.navigation.getParam('value');
     //get csv's from the website
-    this.fetchCsvs();
+    fetchCSV().then(csvs => {
+      Object.keys(csvs).forEach(key => {
+        const csv = csvs[key].filter(
+          dataPoint => dataPoint.Station === stationName
+        );
+        csvs[key] = csv.length > 0 ? csv[0] : null;
+      });
+      this.setState({
+        csvs,
+      });
+    });
   }
 
-  renderDataItems = ({ item }) => {
-    if (
-      item.Station == this.state.stationName &&
-      !arrayAlreadyRendered.includes(item.Station + ' ' + item.Komponente)
-    ) {
-      console.log('Test: ' + item.Komponente);
-      //   arrayAlreadyRendered.push(item.Station + ' ' + item.Komponente);
-      const dateNow = new Date();
-      const lastHour = dateNow.getHours() - 1;
-      const valueOfDate = 'Wert' + lastHour.toString();
-      var substringValue: string;
-      var komponentString: string;
-      var iconString = 'alert-circle-outline';
-      const switchArray = item.Komponente;
+  renderDataItems = ({ item: key }) => {
+    const item = this.state.csvs[key];
+    if (item === null) return <></>;
+    console.log(item.Komponente);
 
-      switch (switchArray) {
-        case "'Lufttemperatur'":
-          substringValue =
-            Number(item[valueOfDate])
-              .toFixed(2)
-              .toString() + ' °C';
-          komponentString = 'Temperatur';
-          iconString = 'temperature-celsius';
-        case "'Stickstoffdioxid'":
-          substringValue =
-            Number(item[valueOfDate])
-              .toFixed(2)
-              .toString() + ' µg/m³';
-          komponentString = 'Stickstoffdioxid NO2';
-      }
+    const dateNow = new Date();
+    const lastHour = dateNow.getHours() - 1;
+    const valueOfDate = 'Wert' + lastHour.toString();
+    let substringValue: string;
+    let komponentString: string;
+    let iconString = 'alert-circle-outline';
 
-      return (
-        <View key={item.Komponente + item.Wert01} style={{ padding: 5 }}>
-          <CityItem
-            komponentName={item.Komponente}
-            valueString={item[valueOfDate]}
-            iconString={iconString}
-            onCityClicked={() =>
-              this.props.navigation.navigate('DetailPage', {
-                value: item.Station,
-              })
-            }
-          />
-        </View>
-      );
+    switch (item.Komponente) {
+      case "'Lufttemperatur'":
+        substringValue =
+          Number(item[valueOfDate])
+            .toFixed(2)
+            .toString() + ' °C';
+        komponentString = 'Temperatur';
+        iconString = 'temperature-celsius';
+        break;
+      case "'Stickstoffdioxid'":
+        substringValue =
+          Number(item[valueOfDate])
+            .toFixed(2)
+            .toString() + ' µg/m³';
+        komponentString = 'Stickstoffdioxid NO2';
+        iconString = './';
+        break;
+      default:
+        ToastAndroid.show('Oops, something went wrong.', ToastAndroid.SHORT);
     }
+
+    return (
+      <View key={item.Komponente + item.Wert01} style={{ padding: 5 }}>
+        <CityItem
+          komponentName={komponentString}
+          valueString={substringValue}
+          iconString={iconString}
+          onCityClicked={() =>
+            this.props.navigation.navigate('DetailPage', {
+              value: item.Station,
+            })
+          }
+        />
+      </View>
+    );
   };
 
   render() {
-    //tries to render multiple times -> error if setState is rendered multiple times
-    if (this.state.renderLimiter == 0) {
-      const value = this.setState({
-        stationName: this.props.navigation.getParam('value'),
-      });
-
-      this.setState({ renderLimiter: 1 });
-    }
-
-    const no2Array = csvJSON(this.state.no2Data);
-    const coArray = csvJSON(this.state.coData);
-    const o3Array = csvJSON(this.state.o3Data);
-    const pm10Array = csvJSON(this.state.pm10Data);
-    const globStraArray = csvJSON(this.state.globStrData);
-    const humidityArray = csvJSON(this.state.humiData);
-    const tempArray = csvJSON(this.state.tempData);
-    const allData = tempArray.concat(
-      no2Array,
-      coArray,
-      o3Array,
-      pm10Array,
-      globStraArray,
-      humidityArray
-    );
-
+    console.log(Object.keys(this.state.csvs));
     return (
       <View>
         <FlatList
@@ -167,8 +122,9 @@ export default class DetailPage extends React.Component<DetailPageProps> {
               }}
             />
           )}
-          data={allData}
+          data={Object.keys(this.state.csvs)}
           renderItem={this.renderDataItems}
+          keyExtractor={key => key}
         />
       </View>
     );
@@ -196,6 +152,18 @@ class CityItem extends React.Component<ItemProps> {
       </Card>
     );
   }
+}
+
+async function fetchCSV() {
+  return {
+    tempData: csvJSON(await (await fetch(TEMP_URL)).text()),
+    no2Data: csvJSON(await (await fetch(NO2_URL)).text()),
+    coData: csvJSON(await (await fetch(CO_URL)).text()),
+    o3Data: csvJSON(await (await fetch(O3_URL)).text()),
+    globstrData: csvJSON(await (await fetch(GLOBSTR_URL)).text()),
+    pm10Data: csvJSON(await (await fetch(PM10_URL)).text()),
+    humiData: csvJSON(await (await fetch(HUMI_URL)).text()),
+  };
 }
 
 function csvJSON(csv) {

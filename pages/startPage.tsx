@@ -90,6 +90,7 @@ export default class StartPage extends React.Component<StartPageProperties> {
           )}
           data={tempArray}
           renderItem={this.renderCityItem}
+          keyExtractor={item => item.Station}
         />
       </View>
     );
