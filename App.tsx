@@ -5,6 +5,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import startPage from './pages/startPage';
 import impressumPage from './pages/impressumPage';
 import detailPage from './pages/detailPage';
+import historyPage from './pages/historyPage';
 
 const AppNavigator = createStackNavigator({
   Home: {
@@ -15,6 +16,9 @@ const AppNavigator = createStackNavigator({
   },
   DetailPage: {
     screen: detailPage,
+  },
+  HistoryPage: {
+    screen: historyPage,
   },
 });
 

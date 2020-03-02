@@ -61,7 +61,7 @@ export default class DetailPage extends React.Component<DetailPageProps> {
   renderDataItems = ({ item: key }) => {
     const item = this.state.csvs[key];
     if (item === null) return <></>;
-    console.log(item.Komponente);
+    // console.log(item);
 
     const dateNow = new Date();
     const lastHour = dateNow.getHours() - 1;
@@ -85,7 +85,47 @@ export default class DetailPage extends React.Component<DetailPageProps> {
             .toFixed(2)
             .toString() + ' µg/m³';
         komponentString = 'Stickstoffdioxid NO2';
-        iconString = './';
+        iconString = 'cloud';
+        break;
+      case "'Luftfeuchtigkeit'":
+        substringValue =
+          Number(item[valueOfDate])
+            .toFixed(2)
+            .toString() + ' %';
+        komponentString = 'Luftfeuchtigkeit';
+        iconString = 'weather-rainy';
+        break;
+      case "'Ozon'":
+        substringValue =
+          Number(item[valueOfDate])
+            .toFixed(2)
+            .toString() + ' µg/m³';
+        komponentString = 'Ozon O3';
+        iconString = 'cloud';
+        break;
+      case "'PM10'":
+        substringValue =
+          Number(item[valueOfDate])
+            .toFixed(2)
+            .toString() + ' µg/m³';
+        komponentString = 'Feinstaubbelastung pm10';
+        iconString = 'cloud';
+        break;
+      case "'Kohlenmonoxid'":
+        substringValue =
+          Number(item[valueOfDate])
+            .toFixed(2)
+            .toString() + ' mg/m³';
+        komponentString = 'Kohlenmonoxid CO';
+        iconString = 'cloud';
+        break;
+      case "'Globalstrahlung'":
+        substringValue =
+          Number(item[valueOfDate])
+            .toFixed(2)
+            .toString() + ' W/m²';
+        komponentString = 'Globalstrahlung';
+        iconString = 'waves';
         break;
       default:
         ToastAndroid.show('Oops, something went wrong.', ToastAndroid.SHORT);
@@ -98,8 +138,8 @@ export default class DetailPage extends React.Component<DetailPageProps> {
           valueString={substringValue}
           iconString={iconString}
           onCityClicked={() =>
-            this.props.navigation.navigate('DetailPage', {
-              value: item.Station,
+            this.props.navigation.navigate('HistoryPage', {
+              value: item,
             })
           }
         />
@@ -108,7 +148,7 @@ export default class DetailPage extends React.Component<DetailPageProps> {
   };
 
   render() {
-    console.log(Object.keys(this.state.csvs));
+    // console.log(Object.keys(this.state.csvs));
     return (
       <View>
         <FlatList
@@ -147,6 +187,15 @@ class CityItem extends React.Component<ItemProps> {
           subtitle={this.props.valueString}
           left={props => (
             <Avatar.Icon {...props} icon={this.props.iconString} />
+            // <Avatar.Icon {...props} icon={require(this.props.iconString)} />
+            // <Avatar.Icon
+            //   {...props}
+            //   icon={
+            //     iconString.includes('../')
+            //       ? require(iconString)
+            //       : iconString
+            //   }
+            // />
           )}
         />
       </Card>
