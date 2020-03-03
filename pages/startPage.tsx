@@ -111,6 +111,7 @@ class CityItem extends React.Component<ItemProps> {
           subtitle={this.props.temperature}
           left={props => <Avatar.Icon {...props} icon='city-variant-outline' />}
         />
+        <Card.Cover source={require('../icons/fog_background.jpg')} />
       </Card>
     );
   }

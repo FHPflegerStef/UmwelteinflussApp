@@ -37,8 +37,11 @@ export default class DetailPage extends React.Component<DetailPageProps> {
   };
 
   static navigationOptions = ({ navigation }) => {
+    const dateNow = new Date();
+    const lastHour = dateNow.getHours() - 1;
+    const measurement = lastHour.toString();
     return {
-      title: 'Wetterdaten Gemeinde',
+      title: `Letzte Messung: ${measurement}:00 Uhr`,
     };
   };
 

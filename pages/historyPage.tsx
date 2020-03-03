@@ -18,7 +18,12 @@ export default class HistoryPage extends React.Component<HistoryPageProps> {
   state = {
     stationName: '',
   };
-  componentDidMount() {}
+  componentDidMount() {
+    // this.setState({
+    //   stationName: this.props.navigation.getParam('value').Komponente,
+    // });
+    // console.log(this.state.stationName);
+  }
 
   static navigationOptions = ({ navigation }) => {
     const { params } = navigation.state;
@@ -31,6 +36,9 @@ export default class HistoryPage extends React.Component<HistoryPageProps> {
   render() {
     return (
       <View>
+        <Card>
+          <Card.Title title='Was ist die ' />
+        </Card>
         <Text>Informationen zu dem Parameter:</Text>
       </View>
     );
