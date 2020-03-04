@@ -13,6 +13,8 @@ import {
   IconButton,
   Avatar,
   ActivityIndicator,
+  Searchbar,
+  DarkTheme,
 } from 'react-native-paper';
 
 const TEMP_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Lufttemperatur.csv';
@@ -25,6 +27,7 @@ export default class StartPage extends React.Component<StartPageProperties> {
   state = {
     inputText: '',
     tempData: '',
+    data: [],
   };
 
   static navigationOptions = ({ navigation }) => {
@@ -46,7 +49,15 @@ export default class StartPage extends React.Component<StartPageProperties> {
       .then(response => response.text())
       .then(text => this.setState({ tempData: text }))
       .catch(error => console.log(error));
+
+    this.setState({ data: csvJSON(this.state.tempData) });
   }
+
+  getFilteredItems = () => {
+    this.state.data.filter(value =>
+      value.Station.includes(this.state.inputText)
+    );
+  };
 
   renderCityItem = ({ item }) => {
     const dateNow = new Date();
@@ -75,24 +86,33 @@ export default class StartPage extends React.Component<StartPageProperties> {
   render() {
     const tempArray = csvJSON(this.state.tempData);
 
+    console.log(this.state.data);
     return (
-      <View>
-        <FlatList
-          ListEmptyComponent={() => (
-            <ActivityIndicator
-              animating={true}
-              color={'blue'}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            />
-          )}
-          data={tempArray}
-          renderItem={this.renderCityItem}
-          keyExtractor={item => item.Station}
-        />
-      </View>
+      <SafeAreaView style={{ flex: 1, paddingTop: 5, paddingBottom: 48 }}>
+        <View>
+          <Searchbar
+            placeholder='Search'
+            onChangeText={query => this.setState({ inputText: query })}
+            value={this.state.inputText}
+          />
+
+          <FlatList
+            ListEmptyComponent={() => (
+              <ActivityIndicator
+                animating={true}
+                color={'blue'}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              />
+            )}
+            data={tempArray}
+            renderItem={this.renderCityItem}
+            keyExtractor={item => item.Station}
+          />
+        </View>
+      </SafeAreaView>
     );
   }
 }
