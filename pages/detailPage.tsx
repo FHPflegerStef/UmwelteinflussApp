@@ -16,6 +16,7 @@ const O3_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Ozon.csv';
 const GLOBSTR_URL =
   'http://open-data.noe.gv.at/ogd-data/BD4/Globalstrahlung.csv';
 const PM10_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/FeinstaubPM10.csv';
+const PM25_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/FeinstaubPM2,5.csv';
 const TEMP_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Lufttemperatur.csv';
 const HUMI_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Luftfeuchtigkeit.csv';
 
@@ -30,6 +31,7 @@ export default class DetailPage extends React.Component<DetailPageProps> {
       o3Data: null,
       globStrData: null,
       pm10Data: null,
+      pm25Data: null,
       coData: null,
       tempData: null,
       humiData: null,
@@ -63,8 +65,8 @@ export default class DetailPage extends React.Component<DetailPageProps> {
 
   renderDataItems = ({ item: key }) => {
     const item = this.state.csvs[key];
-    if (item === null) return <></>;
     // console.log(item);
+    if (item === null) return <></>;
 
     const dateNow = new Date();
     const lastHour = dateNow.getHours() - 1;
@@ -111,7 +113,15 @@ export default class DetailPage extends React.Component<DetailPageProps> {
           Number(item[valueOfDate])
             .toFixed(2)
             .toString() + ' µg/m³';
-        komponentString = 'Feinstaubbelastung pm10';
+        komponentString = 'Feinstaubbelastung PM10';
+        iconString = 'cloud';
+        break;
+      case "'PM2.5'":
+        substringValue =
+          Number(item[valueOfDate])
+            .toFixed(2)
+            .toString() + ' µg/m³';
+        komponentString = 'Feinstaubbelastung PM2,5';
         iconString = 'cloud';
         break;
       case "'Kohlenmonoxid'":
@@ -214,6 +224,7 @@ async function fetchCSV() {
     o3Data: csvJSON(await (await fetch(O3_URL)).text()),
     globstrData: csvJSON(await (await fetch(GLOBSTR_URL)).text()),
     pm10Data: csvJSON(await (await fetch(PM10_URL)).text()),
+    pm25Data: csvJSON(await (await fetch(PM25_URL)).text()),
     humiData: csvJSON(await (await fetch(HUMI_URL)).text()),
   };
 }
