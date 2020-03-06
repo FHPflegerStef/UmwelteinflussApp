@@ -8,6 +8,8 @@ import {
   IconButton,
   ActivityIndicator,
 } from 'react-native-paper';
+import { IStation } from '../@types/station';
+import { NavigationStackProp } from 'react-navigation-stack';
 
 //Url-variables
 const NO2_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Stickstoffdioxid.csv';
@@ -20,11 +22,15 @@ const PM25_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/FeinstaubPM2,5.csv';
 const TEMP_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Lufttemperatur.csv';
 const HUMI_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Luftfeuchtigkeit.csv';
 
-interface DetailPageProps {
-  navigation: any;
-}
+type P = {
+  navigation: NavigationStackProp<{}>;
+};
 
-export default class DetailPage extends React.Component<DetailPageProps> {
+type S = {
+  csvs: Object;
+};
+
+export default class DetailPage extends React.Component<P, S> {
   state = {
     csvs: {
       no2Data: null,
@@ -200,15 +206,6 @@ class CityItem extends React.Component<ItemProps> {
           subtitle={this.props.valueString}
           left={props => (
             <Avatar.Icon {...props} icon={this.props.iconString} />
-            // <Avatar.Icon {...props} icon={require(this.props.iconString)} />
-            // <Avatar.Icon
-            //   {...props}
-            //   icon={
-            //     iconString.includes('../')
-            //       ? require(iconString)
-            //       : iconString
-            //   }
-            // />
           )}
         />
       </Card>
@@ -248,7 +245,6 @@ function csvJSON(csv) {
   }
 
   return result; //JavaScript object
-  //return JSON.stringify(result); //JSON
 }
 
 const styles = StyleSheet.create({

@@ -16,18 +16,25 @@ import {
   Searchbar,
   DarkTheme,
 } from 'react-native-paper';
+import { IStation } from '../@types/station';
 
 const TEMP_URL = 'http://open-data.noe.gv.at/ogd-data/BD4/Lufttemperatur.csv';
 
-interface StartPageProperties {
+type P = {
   navigation: NavigationStackProp<{}>;
-}
+};
 
-export default class StartPage extends React.Component<StartPageProperties> {
+type S = {
+  tempData: string;
+  data: IStation[];
+  query: string;
+};
+
+export default class StartPage extends React.Component<P, S> {
   state = {
-    inputText: '',
     tempData: '',
     data: [],
+    query: '',
   };
 
   static navigationOptions = ({ navigation }) => {
@@ -54,19 +61,21 @@ export default class StartPage extends React.Component<StartPageProperties> {
   }
 
   getFilteredItems = () => {
-    this.state.data.filter(value =>
-      value.Station.includes(this.state.inputText)
-    );
+    this.state.data.filter(value => value.Station.includes(this.state.query));
   };
 
-  renderCityItem = ({ item }) => {
+  renderCityItem = ({ item }: { item: IStation }) => {
     const dateNow = new Date();
     const lastHour = dateNow.getHours() - 1;
     const valueOfDate = 'Wert' + lastHour.toString();
     const tempAtLastHour = Number(item[valueOfDate]);
     const tempString = tempAtLastHour.toFixed(2).toString() + ' °C';
 
+    if (!item.Station.toLowerCase().includes(this.state.query.toLowerCase()))
+      return <></>;
+
     if (item.Station != '') {
+      console.log(item);
       return (
         <View style={{ padding: 5 }}>
           <CityItem
@@ -86,14 +95,14 @@ export default class StartPage extends React.Component<StartPageProperties> {
   render() {
     const tempArray = csvJSON(this.state.tempData);
 
-    console.log(this.state.data);
+    // console.log(this.state.data);
     return (
       <SafeAreaView style={{ flex: 1, paddingTop: 5, paddingBottom: 48 }}>
         <View>
           <Searchbar
             placeholder='Search'
-            onChangeText={query => this.setState({ inputText: query })}
-            value={this.state.inputText}
+            onChangeText={query => this.setState({ query })}
+            value={this.state.query}
           />
 
           <FlatList
@@ -156,7 +165,6 @@ function csvJSON(csv) {
   }
 
   return result; //JavaScript object
-  //return JSON.stringify(result); //JSON
 }
 
 const styles = StyleSheet.create({
