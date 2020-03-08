@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Linking, Platform } from 'react-native';
+import { View, Text, Linking, Platform, StyleSheet } from 'react-native';
 import { Card, Avatar, Button } from 'react-native-paper';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import qs from 'qs';
@@ -62,13 +62,17 @@ export default class ImpressumPage extends React.Component<
           <Card onPress={this.writeEmail}>
             <Card.Title
               title={emailAddress}
-              left={props => <Avatar.Icon {...props} icon='email' />}
+              left={props => (
+                <Avatar.Icon {...props} icon='email' style={styles.icon} />
+              )}
             />
           </Card>
           <Card onPress={this.callNumber}>
             <Card.Title
               title={phoneNumber}
-              left={props => <Avatar.Icon {...props} icon='cellphone' />}
+              left={props => (
+                <Avatar.Icon {...props} icon='cellphone' style={styles.icon} />
+              )}
             />
           </Card>
         </ScrollView>
@@ -76,3 +80,9 @@ export default class ImpressumPage extends React.Component<
     );
   }
 }
+
+const styles = StyleSheet.create({
+  icon: {
+    backgroundColor: '#005197',
+  },
+});

@@ -8,14 +8,6 @@ import {
   Paragraph,
   DarkTheme,
 } from 'react-native-paper';
-import {
-  LineChart,
-  BarChart,
-  PieChart,
-  ProgressChart,
-  ContributionGraph,
-  StackedBarChart,
-} from 'react-native-chart-kit';
 import { SafeAreaView, ThemeColors } from 'react-navigation';
 
 interface HistoryPageProps {

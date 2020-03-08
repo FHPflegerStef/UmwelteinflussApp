@@ -7,6 +7,7 @@ import {
   Button,
   IconButton,
   ActivityIndicator,
+  Paragraph,
 } from 'react-native-paper';
 import { IStation } from '../@types/station';
 import { NavigationStackProp } from 'react-navigation-stack';
@@ -76,7 +77,7 @@ export default class DetailPage extends React.Component<P, S> {
 
     const dateNow = new Date();
     const lastHour = dateNow.getHours() - 1;
-    const valueOfDate = 'Wert' + lastHour.toString();
+    const valueOfDate = 'Wert' + lastHour.toString().padStart(2, '0');
     let substringValue: string;
     let komponentString: string;
     let iconString = 'alert-circle-outline';
@@ -120,7 +121,7 @@ export default class DetailPage extends React.Component<P, S> {
             .toFixed(2)
             .toString() + ' µg/m³';
         komponentString = 'Feinstaubbelastung PM10';
-        iconString = 'cloud';
+        iconString = 'air-filter';
         break;
       case "'PM2.5'":
         substringValue =
@@ -128,7 +129,7 @@ export default class DetailPage extends React.Component<P, S> {
             .toFixed(2)
             .toString() + ' µg/m³';
         komponentString = 'Feinstaubbelastung PM2,5';
-        iconString = 'cloud';
+        iconString = 'air-filter';
         break;
       case "'Kohlenmonoxid'":
         substringValue =
@@ -203,9 +204,20 @@ class CityItem extends React.Component<ItemProps> {
       <Card onPress={this.props.onCityClicked}>
         <Card.Title
           title={this.props.komponentName}
+          titleStyle={styles.title}
           subtitle={this.props.valueString}
+          subtitleStyle={styles.subtitle}
           left={props => (
-            <Avatar.Icon {...props} icon={this.props.iconString} />
+            // <Avatar.Icon
+            //   {...props}
+            //   icon={require('../icons/no2_icon.png')}
+            //   style={styles.iconStyle}
+            // />
+            <Avatar.Icon
+              {...props}
+              icon={this.props.iconString}
+              style={styles.iconStyle}
+            />
           )}
         />
       </Card>
@@ -253,5 +265,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  cardText: {
+    fontSize: 20,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  iconStyle: { backgroundColor: '#ffffff' },
+  title: {
+    textAlign: 'center',
+    color: '#8a8a8a',
+    paddingRight: 20,
+  },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#000000',
+    paddingRight: 20,
   },
 });

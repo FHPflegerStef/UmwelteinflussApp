@@ -67,7 +67,8 @@ export default class StartPage extends React.Component<P, S> {
   renderCityItem = ({ item }: { item: IStation }) => {
     const dateNow = new Date();
     const lastHour = dateNow.getHours() - 1;
-    const valueOfDate = 'Wert' + lastHour.toString();
+    const valueOfDate = 'Wert' + lastHour.toString().padStart(2, '0');
+    // console.log(item[valueOfDate]);
     const tempAtLastHour = Number(item[valueOfDate]);
     const tempString = tempAtLastHour.toFixed(2).toString() + ' °C';
 
@@ -75,7 +76,7 @@ export default class StartPage extends React.Component<P, S> {
       return <></>;
 
     if (item.Station != '') {
-      console.log(item);
+      // console.log(item);
       return (
         <View style={{ padding: 5 }}>
           <CityItem
@@ -94,7 +95,7 @@ export default class StartPage extends React.Component<P, S> {
 
   render() {
     const tempArray = csvJSON(this.state.tempData);
-
+    // console.log(tempArray);
     // console.log(this.state.data);
     return (
       <SafeAreaView style={{ flex: 1, paddingTop: 5, paddingBottom: 48 }}>
@@ -137,8 +138,15 @@ class CityItem extends React.Component<ItemProps> {
       <Card onPress={this.props.onCityClicked}>
         <Card.Title
           title={this.props.station}
+          style={styles.title}
           subtitle={this.props.temperature}
-          left={props => <Avatar.Icon {...props} icon='city-variant-outline' />}
+          left={props => (
+            <Avatar.Icon
+              {...props}
+              icon='city-variant-outline'
+              style={styles.icon}
+            />
+          )}
         />
         <Card.Cover source={require('../icons/fog_background.jpg')} />
       </Card>
@@ -173,5 +181,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  title: {
+    backgroundColor: '#f7f7f7',
+  },
+  icon: {
+    backgroundColor: '#b5b5b5',
   },
 });
