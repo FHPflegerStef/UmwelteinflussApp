@@ -72,7 +72,7 @@ export default class DetailPage extends React.Component<P, S> {
 
   renderDataItems = ({ item: key }) => {
     const item = this.state.csvs[key];
-    // console.log(item);
+
     if (item === null) return <></>;
 
     const dateNow = new Date();
@@ -168,7 +168,6 @@ export default class DetailPage extends React.Component<P, S> {
   };
 
   render() {
-    // console.log(Object.keys(this.state.csvs));
     return (
       <View>
         <FlatList

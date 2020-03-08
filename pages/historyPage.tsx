@@ -9,21 +9,21 @@ import {
   DarkTheme,
 } from 'react-native-paper';
 import { SafeAreaView, ThemeColors } from 'react-navigation';
+import {
+  LineChart,
+  BarChart,
+  PieChart,
+  ProgressChart,
+  ContributionGraph,
+  StackedBarChart,
+} from 'react-native-chart-kit';
+import { ScrollView } from 'react-native-gesture-handler';
 
 interface HistoryPageProps {
   navigation: any;
 }
 
 export default class HistoryPage extends React.Component<HistoryPageProps> {
-  state = {
-    stationName: '',
-  };
-  componentDidMount() {
-    // this.setState({
-    //   stationName: this.props.navigation.getParam('value').Komponente,
-    // });
-  }
-
   static navigationOptions = ({ navigation }) => {
     const { params } = navigation.state;
 
@@ -33,23 +33,100 @@ export default class HistoryPage extends React.Component<HistoryPageProps> {
   };
 
   render() {
-    const stationName = this.props.navigation
-      .getParam('value')
-      .Komponente.slice(1, -1);
+    const value = this.props.navigation.getParam('value');
+    const stationName = value.Komponente.slice(1, -1);
+
+    var labelArray = [];
+    var dataArray = [];
+
+    for (var i in value) {
+      if (i.includes('Wert') && Number(value[i]) != -999) {
+        labelArray.push(`${i.substring(4)}`);
+        dataArray.push(Number(value[i]));
+      }
+    }
 
     return (
       <SafeAreaView>
-        <View>
-          <Card>
-            <Card.Content>
-              <Title>Wissenswertes über: {stationName}</Title>
-              <Paragraph>{getParagraphText(stationName)}</Paragraph>
-            </Card.Content>
-          </Card>
-        </View>
+        <ScrollView>
+          <View>
+            <View>
+              <LineChart
+                data={{
+                  labels: labelArray,
+                  datasets: [
+                    {
+                      data: dataArray,
+                    },
+                  ],
+                }}
+                width={Dimensions.get('window').width - 4} // from react-native
+                height={220}
+                yAxisSuffix={getDataType(stationName)}
+                yAxisInterval={1} // optional, defaults to 1
+                chartConfig={{
+                  backgroundColor: '#e26a00',
+                  backgroundGradientFrom: '#fb8c00',
+                  backgroundGradientTo: '#ffa726',
+                  decimalPlaces: 2, // optional, defaults to 2dp
+                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                  labelColor: (opacity = 1) =>
+                    `rgba(255, 255, 255, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                }}
+                bezier
+                style={{
+                  marginHorizontal: 2,
+                  marginVertical: 8,
+                  borderRadius: 16,
+                }}
+              />
+            </View>
+            <Card>
+              <Card.Content>
+                <Title>Wissenswertes über: {stationName}</Title>
+                <Paragraph>{getParagraphText(stationName)}</Paragraph>
+              </Card.Content>
+            </Card>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
+}
+
+function getDataType(stationName) {
+  let dataType: string;
+
+  switch (stationName) {
+    case 'Lufttemperatur':
+      dataType = '°C';
+      break;
+    case 'Stickstoffdioxid':
+      dataType = ' µg/m³';
+      break;
+    case 'Luftfeuchtigkeit':
+      dataType = '%';
+      break;
+    case 'Ozon':
+      dataType = ' µg/m³';
+      break;
+    case 'PM10':
+      dataType = ' µg/m³';
+      break;
+    case 'PM2.5':
+      dataType = ' µg/m³';
+      break;
+    case 'Kohlenmonoxid':
+      dataType = ' mg/m³';
+      break;
+    case 'Globalstrahlung':
+      dataType = ' Watt/m²';
+      break;
+  }
+  return dataType;
 }
 
 function getParagraphText(stationName) {
