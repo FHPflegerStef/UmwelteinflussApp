@@ -72,7 +72,6 @@ export default class DetailPage extends React.Component<P, S> {
 
   renderDataItems = ({ item: key }) => {
     const item = this.state.csvs[key];
-
     if (item === null) return <></>;
 
     const dateNow = new Date();
@@ -81,6 +80,8 @@ export default class DetailPage extends React.Component<P, S> {
     let substringValue: string;
     let komponentString: string;
     let iconString = 'alert-circle-outline';
+
+    if (Number(item[valueOfDate]) === -999) return <></>;
 
     switch (item.Komponente) {
       case "'Lufttemperatur'":

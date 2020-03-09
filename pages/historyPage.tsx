@@ -28,7 +28,9 @@ export default class HistoryPage extends React.Component<HistoryPageProps> {
     const { params } = navigation.state;
 
     return {
-      title: params ? params.value.Komponente.slice(1, -1) : 'Detailansicht',
+      title: params
+        ? `${params.value.Komponente.slice(1, -1)}`
+        : 'Detailansicht',
     };
   };
 
@@ -41,7 +43,7 @@ export default class HistoryPage extends React.Component<HistoryPageProps> {
 
     for (var i in value) {
       if (i.includes('Wert') && Number(value[i]) != -999) {
-        labelArray.push(`${i.substring(4)}`);
+        labelArray.push(`${Number(i.substring(4))} h`);
         dataArray.push(Number(value[i]));
       }
     }
@@ -61,17 +63,18 @@ export default class HistoryPage extends React.Component<HistoryPageProps> {
                   ],
                 }}
                 width={Dimensions.get('window').width - 4} // from react-native
-                height={220}
+                height={256}
                 yAxisSuffix={getDataType(stationName)}
                 yAxisInterval={1} // optional, defaults to 1
+                verticalLabelRotation={270}
+                xLabelsOffset={5}
                 chartConfig={{
                   backgroundColor: '#e26a00',
-                  backgroundGradientFrom: '#fb8c00',
-                  backgroundGradientTo: '#ffa726',
+                  backgroundGradientFrom: 'rgb(165, 242, 245)',
+                  backgroundGradientTo: 'rgb(190, 246, 248)',
                   decimalPlaces: 2, // optional, defaults to 2dp
-                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                  labelColor: (opacity = 1) =>
-                    `rgba(255, 255, 255, ${opacity})`,
+                  color: (opacity = 1) => `rgba(99, 102, 102, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(61, 61, 61, ${opacity})`,
                   style: {
                     borderRadius: 16,
                   },
@@ -80,13 +83,16 @@ export default class HistoryPage extends React.Component<HistoryPageProps> {
                 style={{
                   marginHorizontal: 2,
                   marginVertical: 8,
-                  borderRadius: 16,
+                  borderRadius: 8,
                 }}
               />
             </View>
             <Card>
               <Card.Content>
-                <Title>Wissenswertes über: {stationName}</Title>
+                <Title>
+                  Wissenswertes über: {stationName} in{' '}
+                  {getDataType(stationName)}
+                </Title>
                 <Paragraph>{getParagraphText(stationName)}</Paragraph>
               </Card.Content>
             </Card>
@@ -97,7 +103,7 @@ export default class HistoryPage extends React.Component<HistoryPageProps> {
   }
 }
 
-function getDataType(stationName) {
+function getDataType(stationName: string) {
   let dataType: string;
 
   switch (stationName) {
